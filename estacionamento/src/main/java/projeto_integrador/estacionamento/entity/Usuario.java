@@ -1,5 +1,6 @@
 package projeto_integrador.estacionamento.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.List;
 public class Usuario {
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @JsonManagedReference // ✅ Permite que a lista de Veiculos seja serializada
     private List<Veiculo> veiculos = new ArrayList<>();
 
     @Id
