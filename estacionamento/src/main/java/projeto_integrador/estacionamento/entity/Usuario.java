@@ -10,7 +10,7 @@ import java.util.List;
 public class Usuario {
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    @JsonManagedReference // ✅ Permite que a lista de Veiculos seja serializada
+    @JsonManagedReference //Permite que a lista de Veiculos seja serializada
     private List<Veiculo> veiculos = new ArrayList<>();
 
     @Id
