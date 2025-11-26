@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public record ReservaChatbotDTO(
         String telefone,
         LocalDateTime inicio,
-        LocalDateTime fim
+        LocalDateTime fim,
+        String categoriaVaga
 ) {
 }

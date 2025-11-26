@@ -80,8 +80,7 @@ public class ReservaService {
         return reservaRepository.save(reserva);
     }
 
-    //MÉTODO para usuário autenticado (usado pelo chatbot)
-
+    // Para web (com JWT)
     @Transactional
     public Reserva criarParaUsuario(Long usuarioId, ReservaCreateDTO req) {
 
@@ -136,8 +135,6 @@ public class ReservaService {
         return reservaRepository.save(reserva);
     }
 
-
-    //Listagem
     @Transactional(readOnly = true)
     public List<Reserva> listarPorUsuario(Long usuarioId) {
         return reservaRepository.findByUsuarioId(usuarioId);
@@ -148,6 +145,7 @@ public class ReservaService {
         return reservaRepository.findAll();
     }
 
+    // ✅ Usado especificamente pelo chatbot
     @Transactional
     public Reserva criarViaChatbot(ReservaChatbotDTO dto) {
 
@@ -159,21 +157,32 @@ public class ReservaService {
             throw new ConflictException("Fim deve ser após o início");
         }
 
-        //Buscar usuário pelo telefone
+        // Buscar usuário pelo telefone (já normalizado pelo bot)
         Usuario usuario = usuarioRepository.findByTelefone(dto.telefone())
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
 
-        //Buscar qualquer vaga LIVRE
-        Vaga vagaLivre = vagaRepository.findByStatus(VagaStatus.LIVRE).stream()
-                .findFirst()
-                .orElseThrow(() -> new ConflictException("Não há vagas livres nesse período"));
+        // Normalizar categoria ("carro", "CARRO", "Carro" -> "CARRO")
+        String categoria = dto.categoriaVaga();
+        if (categoria == null || categoria.isBlank()) {
+            throw new ConflictException("Categoria de vaga é obrigatória (CARRO, MOTO ou PCD)");
+        }
+        categoria = categoria.trim().toUpperCase();
+        final String categoriaFinal = categoria;
 
+        // Buscar a primeira vaga LIVRE daquela categoria, em ordem de id
+        Vaga vagaLivre = vagaRepository
+                .findFirstByCategoriaAndStatusOrderByIdVagaAsc(categoriaFinal, VagaStatus.LIVRE)
+                .orElseThrow(() -> new ConflictException(
+                        "Não há vagas livres do tipo " + categoriaFinal + " nesse momento"
+                ));
+
+        // Reaproveita a lógica existente
         ReservaCreateDTO createDTO = new ReservaCreateDTO(
                 vagaLivre.getIdVaga(),
                 dto.inicio(),
                 dto.fim()
         );
+
         return criarParaUsuario(usuario.getId(), createDTO);
     }
-
 }
