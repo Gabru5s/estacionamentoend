@@ -13,26 +13,20 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF – se seu front é SPA/REST, normalmente desativa geral:
+                // Desabilita CSRF (API REST)
                 .csrf(csrf -> csrf.disable())
 
-                // H2 console usa frame, então precisa liberar
+                // Habilita CORS (vai usar seu CorsConfig se tiver)
+                .cors(cors -> {})
+
+                // Libera uso de frame (necessário pro H2 console)
                 .headers(headers -> headers
                         .frameOptions(frame -> frame.disable())
                 )
 
+                // Libera TUDO sem precisar de autenticação
                 .authorizeHttpRequests(auth -> auth
-                        // ENDPOINTS PÚBLICOS (SEM AUTENTICAÇÃO)
-                        .requestMatchers(
-                                "/api/usuarios/cadastro",
-                                "/api/usuarios/login",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/h2-console/**",
-                                "/api/vagas/**",
-                                "/api/reservas/whatsapp/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 );
 
         return http.build();

@@ -16,21 +16,44 @@ public class VagaInitializer {
     @PostConstruct
     public void criarVagasPadroes() {
         if (vagaRepository.count() > 0) {
-            return; // Já existem vagas
+            return; // já existem vagas
         }
 
-        for (int i = 1; i <= 64; i++) {
-            String numero = String.format("V%02d", i);
+        int numero = 1;
 
+        // 30 vagas de CARRO
+        for (; numero <= 30; numero++) {
+            String codigo = String.format("V%02d", numero);
             Vaga vaga = Vaga.builder()
-                    .numero(numero)
-                    .categoria("CARRO") // ou PADRAO
+                    .numero(codigo)
+                    .categoria("CARRO")
                     .status(VagaStatus.LIVRE)
                     .build();
-
             vagaRepository.save(vaga);
         }
 
-        System.out.println("==== 64 vagas criadas automaticamente ====");
+        // 15 vagas de MOTO (31 a 45)
+        for (; numero <= 45; numero++) {
+            String codigo = String.format("V%02d", numero);
+            Vaga vaga = Vaga.builder()
+                    .numero(codigo)
+                    .categoria("MOTO")
+                    .status(VagaStatus.LIVRE)
+                    .build();
+            vagaRepository.save(vaga);
+        }
+
+        // 5 vagas PCD (46 a 50)
+        for (; numero <= 50; numero++) {
+            String codigo = String.format("V%02d", numero);
+            Vaga vaga = Vaga.builder()
+                    .numero(codigo)
+                    .categoria("PCD")
+                    .status(VagaStatus.LIVRE)
+                    .build();
+            vagaRepository.save(vaga);
+        }
+
+        System.out.println("==== Vagas padrão criadas (30 CARRO, 15 MOTO, 5 PCD) ====");
     }
 }
