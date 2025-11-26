@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import projeto_integrador.estacionamento.DTO.ReservaChatbotDTO;
 import projeto_integrador.estacionamento.DTO.ReservaCreateDTO;
 import projeto_integrador.estacionamento.DTO.ReservaRequestDTO;
 import projeto_integrador.estacionamento.entity.Reserva;
@@ -68,5 +69,15 @@ public class ReservaController {
 
         List<Reserva> reservas = reservaService.listarPorUsuario(usuarioId);
         return ResponseEntity.ok(reservas);
+    }
+
+    @PostMapping("/chatbot")
+    public ResponseEntity<?> criarReservaViaChatbot(@RequestBody ReservaChatbotDTO dto) {
+        try {
+            Reserva reserva = reservaService.criarViaChatbot(dto);
+            return new ResponseEntity<>(reserva, HttpStatus.CREATED);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

@@ -12,4 +12,6 @@ public interface    UsuarioRepository extends JpaRepository<Usuario, Long> {
     // Métodos para verificar se email ou CPF já estão em uso
     Optional<Usuario> findByEmail(String email);
     Optional<Usuario> findByCpf(String cpf);
+
+    Optional<Usuario> findByTelefone(String telefone);
 }

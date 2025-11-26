@@ -21,7 +21,7 @@ public class VagaController {
 
     @GetMapping("/livres")
     public List<Vaga> listarVagasLivres() {
-        return VagaRepository.findByStatus(VagaStatus.LIVRE);
+        return vagaRepository.findByStatus(VagaStatus.LIVRE);
     }
 }
 

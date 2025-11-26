@@ -3,6 +3,7 @@ package projeto_integrador.estacionamento.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import projeto_integrador.estacionamento.DTO.ReservaChatbotDTO;
 import projeto_integrador.estacionamento.DTO.ReservaCreateDTO;
 import projeto_integrador.estacionamento.DTO.ReservaRequestDTO;
 import projeto_integrador.estacionamento.enuns.ReservaStatus;
@@ -146,4 +147,33 @@ public class ReservaService {
     public List<Reserva> listarTodas() {
         return reservaRepository.findAll();
     }
+
+    @Transactional
+    public Reserva criarViaChatbot(ReservaChatbotDTO dto) {
+
+        if (dto.inicio() == null || dto.fim() == null) {
+            throw new ConflictException("Início e fim são obrigatórios");
+        }
+
+        if (!dto.fim().isAfter(dto.inicio())) {
+            throw new ConflictException("Fim deve ser após o início");
+        }
+
+        //Buscar usuário pelo telefone
+        Usuario usuario = usuarioRepository.findByTelefone(dto.telefone())
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
+
+        //Buscar qualquer vaga LIVRE
+        Vaga vagaLivre = vagaRepository.findByStatus(VagaStatus.LIVRE).stream()
+                .findFirst()
+                .orElseThrow(() -> new ConflictException("Não há vagas livres nesse período"));
+
+        ReservaCreateDTO createDTO = new ReservaCreateDTO(
+                vagaLivre.getIdVaga(),
+                dto.inicio(),
+                dto.fim()
+        );
+        return criarParaUsuario(usuario.getId(), createDTO);
+    }
+
 }
